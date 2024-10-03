@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, FileResponse
+from pdf2docx import Converter
 import PyPDF2
 import io
+import os
 import fitz
 import pdfplumber
+import tempfile
 import zipfile
 
 def pdf_manager(request):
@@ -11,6 +14,7 @@ def pdf_manager(request):
         operation = request.POST.get('operation')
         uploaded_files = request.FILES.getlist('pdf_files')
         output_file_name = request.POST.get('output_file_name', 'output.pdf')
+        outputdocx_name = request.POST.get('output_file_name', 'output.docx')
 
         pdf_paths = []
         for uploaded_file in uploaded_files:
@@ -71,6 +75,11 @@ def pdf_manager(request):
             case 'optimize':
                 optimize_pdf_helper(pdf_paths[0], output_buffer)
                 response = FileResponse(output_buffer, as_attachment=True, filename=output_file_name)
+
+            case 'pdf_to_word':
+                word_buffer = io.BytesIO()
+                pdf_to_word_helper(pdf_paths[0], word_buffer)
+                response = FileResponse(word_buffer, as_attachment=True, filename=outputdocx_name)
 
         return response
 
@@ -170,3 +179,21 @@ def optimize_pdf_helper(input_pdf, output_buffer):
     doc = fitz.open(input_pdf)
     doc.save(output_buffer, garbage=4, deflate=True, clean=True)
     output_buffer.seek(0)
+
+def pdf_to_word_helper(pdf_file, output_buffer):
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+        temp_pdf.write(pdf_file.read())
+        temp_pdf.flush()  # Ensure all data is written
+        temp_pdf.close()  # Explicitly close the file so other processes can read it
+
+        # Create another temporary file to store the DOCX content
+        with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as temp_docx:
+            # Convert PDF to DOCX using pdf2docx
+            cv = Converter(temp_pdf.name)  # Use the file path of the temporary PDF
+            cv.convert(temp_docx.name, start=0, end=None)  # Convert the entire PDF
+            cv.close()
+
+            # Read the generated DOCX file into the output buffer
+            temp_docx.seek(0)
+            output_buffer.write(temp_docx.read())
+            output_buffer.seek(0)
