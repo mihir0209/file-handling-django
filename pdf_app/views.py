@@ -3,7 +3,6 @@ from django.http import HttpResponse, FileResponse
 from pdf2docx import Converter
 import PyPDF2
 import io
-import os
 import fitz
 import pdfplumber
 import tempfile
@@ -65,17 +64,7 @@ def pdf_manager(request):
                 metadata = read_metadata_helper(pdf_paths[0])
                 response = HttpResponse(metadata, content_type='text/plain')
                 response['Content-Disposition'] = f'attachment; filename="metadata.txt"'
-
-            case 'add_metadata':
-                title = request.POST.get('title')
-                author = request.POST.get('author')
-                add_metadata_helper(pdf_paths[0], output_buffer, title, author)
-                response = FileResponse(output_buffer, as_attachment=True, filename=output_file_name)
-
-            case 'optimize':
-                optimize_pdf_helper(pdf_paths[0], output_buffer)
-                response = FileResponse(output_buffer, as_attachment=True, filename=output_file_name)
-
+                
             case 'pdf_to_word':
                 word_buffer = io.BytesIO()
                 pdf_to_word_helper(pdf_paths[0], word_buffer)
@@ -162,23 +151,6 @@ def read_metadata_helper(input_pdf):
     pdf_reader = PyPDF2.PdfReader(input_pdf)
     metadata = pdf_reader.metadata
     return '\n'.join(f"{key}: {value}" for key, value in metadata.items())
-
-def add_metadata_helper(input_pdf, output_buffer, title, author):
-    pdf_reader = PyPDF2.PdfReader(input_pdf)
-    pdf_writer = PyPDF2.PdfWriter()
-    for page in pdf_reader.pages:
-        pdf_writer.add_page(page)
-    pdf_writer.add_metadata({
-        '/Title': title,
-        '/Author': author
-    })
-    pdf_writer.write(output_buffer)
-    output_buffer.seek(0)
-
-def optimize_pdf_helper(input_pdf, output_buffer):
-    doc = fitz.open(input_pdf)
-    doc.save(output_buffer, garbage=4, deflate=True, clean=True)
-    output_buffer.seek(0)
 
 def pdf_to_word_helper(pdf_file, output_buffer):
     with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
