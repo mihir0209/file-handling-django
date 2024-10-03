@@ -1,12 +1,10 @@
 from django.shortcuts import render
-from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, FileResponse
 import PyPDF2
-import os
+import io
 import fitz
 import pdfplumber
 import zipfile
-import io
 
 def pdf_manager(request):
     if request.method == 'POST':
@@ -14,11 +12,9 @@ def pdf_manager(request):
         uploaded_files = request.FILES.getlist('pdf_files')
         output_file_name = request.POST.get('output_file_name', 'output.pdf')
 
-        fs = FileSystemStorage()
         pdf_paths = []
         for uploaded_file in uploaded_files:
-            filename = fs.save(uploaded_file.name, uploaded_file)
-            pdf_paths.append(os.path.join(fs.location, filename))
+            pdf_paths.append(uploaded_file)
 
         output_buffer = io.BytesIO()
 
@@ -75,10 +71,6 @@ def pdf_manager(request):
             case 'optimize':
                 optimize_pdf_helper(pdf_paths[0], output_buffer)
                 response = FileResponse(output_buffer, as_attachment=True, filename=output_file_name)
-
-        # Clean up temporary files
-        for pdf_path in pdf_paths:
-            os.remove(pdf_path)
 
         return response
 
