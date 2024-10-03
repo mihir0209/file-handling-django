@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Manager</title>
+    <script>
+        function showOptions() {
+            // Get selected operation
+            var operation = document.getElementById("operation").value;
+
+            // Hide all optional fields
+            document.getElementById("password_field").style.display = 'none';
+            document.getElementById("page_order_field").style.display = 'none';
+            document.getElementById("rotation_field").style.display = 'none';
+            document.getElementById("metadata_field").style.display = 'none';
+
+            // Show fields based on selected operation
+            if (operation === 'encrypt' || operation === 'decrypt') {
+                document.getElementById("password_field").style.display = 'block';
+            } 
+            if (operation === 'rearrange_pages') {
+                document.getElementById("page_order_field").style.display = 'block';
+            }
+            if (operation === 'rotate_pages') {
+                document.getElementById("rotation_field").style.display = 'block';
+            }
+            if (operation === 'add_metadata') {
+                document.getElementById("metadata_field").style.display = 'block';
+            }
+        }
+
+        window.onload = showOptions;
+    </script>
+</head>
+<body>
+    <h1>PDF Manager</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="operation">Choose an operation:</label>
+        <select name="operation" id="operation" onchange="showOptions()">
+            <option value="merge">Merge PDFs</option>
+            <option value="split">Split PDF</option>
+            <option value="extract_text">Extract Text</option>
+            <option value="extract_images">Extract Images</option>
+            <option value="encrypt">Encrypt PDF</option>
+            <option value="decrypt">Decrypt PDF</option>
+            <option value="rearrange_pages">Rearrange Pages</option>
+            <option value="rotate_pages">Rotate Pages</option>
+            <option value="read_metadata">Read Metadata</option>
+            <option value="add_metadata">Add Metadata</option>
+            <option value="optimize">Optimize PDF</option>
+        </select>
+
+        <br><br>
+
+        <label for="pdf_files">Choose PDF files:</label>
+        <input type="file" name="pdf_files" id="pdf_files" multiple>
+    
+        <br><br>
+
+        <label for="output_file_name">Output file name (optional):</label>
+        <input type="text" name="output_file_name" id="output_file_name">
+
+        <br><br>
+
+        <!-- Password field (for encrypt/decrypt) -->
+        <div id="password_field" style="display:none;">
+            <label for="password">Password (if applicable):</label>
+            <input type="password" name="password" id="password">
+        </div>
+
+        <br>
+
+        <!-- Page order field (for rearrange pages) -->
+        <div id="page_order_field" style="display:none;">
+            <label for="page_order">Page Order (separated by space):</label>
+            <input type="text" name="page_order" id="page_order">
+        </div>
+
+        <br>
+
+        <!-- Rotation angle field (for rotate pages) -->
+        <div id="rotation_field" style="display:none;">
+            <label for="rotation">Rotation angle (in degrees):</label>
+            <input type="number" name="rotation" id="rotation">
+        </div>
+
+        <br>
+
+        <!-- Metadata fields (for add metadata) -->
+        <div id="metadata_field" style="display:none;">
+            <label for="title">Title (for metadata):</label>
+            <input type="text" name="title" id="title">
+
+            <br><br>
+
+            <label for="author">Author (for metadata):</label>
+            <input type="text" name="author" id="author">
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
