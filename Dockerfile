@@ -14,7 +14,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 
 # Set environment variables for Django
-ENV DJANGO_SETTINGS_MODULE=pdf_management.settings
+ENV DJANGO_SETTINGS_MODULE=api.settings
 ENV PYTHONUNBUFFERED=1
 
 # Expose port 8000
