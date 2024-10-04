@@ -22,7 +22,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Step 8: Run migrations and collect static files
-RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 
 # Step 9: Specify the command to run the Django app with Gunicorn
