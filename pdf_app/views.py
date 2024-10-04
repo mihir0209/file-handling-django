@@ -6,6 +6,7 @@ import io
 import fitz
 import pdfplumber
 import tempfile
+import pypandoc
 import zipfile
 
 def pdf_manager(request):
@@ -66,9 +67,8 @@ def pdf_manager(request):
                 response['Content-Disposition'] = f'attachment; filename="metadata.txt"'
                 
             case 'pdf_to_word':
-                word_buffer = io.BytesIO()
-                pdf_to_word_helper(pdf_paths[0], word_buffer)
-                response = FileResponse(word_buffer, as_attachment=True, filename=outputdocx_name)
+                pdf_to_word_helper(pdf_paths[0], output_buffer)
+                response = FileResponse(output_buffer, as_attachment=True, filename=f"{outputdocx_name}.docx")
 
         return response
 
@@ -153,19 +153,16 @@ def read_metadata_helper(input_pdf):
     return '\n'.join(f"{key}: {value}" for key, value in metadata.items())
 
 def pdf_to_word_helper(pdf_file, output_buffer):
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+    with tempfile.NamedTemporaryFile(suffix='.pdf') as temp_pdf:
         temp_pdf.write(pdf_file.read())
-        temp_pdf.flush()  # Ensure all data is written
-        temp_pdf.close()  # Explicitly close the file so other processes can read it
+        temp_pdf.flush()
+        temp_pdf.close()
 
-        # Create another temporary file to store the DOCX content
-        with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as temp_docx:
-            # Convert PDF to DOCX using pdf2docx
-            cv = Converter(temp_pdf.name)  # Use the file path of the temporary PDF
-            cv.convert(temp_docx.name, start=0, end=None)  # Convert the entire PDF
-            cv.close()
+        # Use pypandoc to convert PDF to DOCX
+        output_path = 'output.docx'
+        pypandoc.convert_file(temp_pdf.name, 'docx', outputfile=output_path)
 
-            # Read the generated DOCX file into the output buffer
-            temp_docx.seek(0)
-            output_buffer.write(temp_docx.read())
-            output_buffer.seek(0)
+        # Read the converted DOCX into the output buffer
+        with open(output_path, 'rb') as docx_file:
+            output_buffer.write(docx_file.read())
+        output_buffer.seek(0)
