@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,78 +11,135 @@
         .gradient-bg {
             background: linear-gradient(90deg, #4f46e5, #818cf8);
         }
+
+        .option-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .selected {
+            background-color: #4f46e5; /* Tailwind blue-700 */
+            color: white;
+            border: 2px solid #3b82f6; /* Tailwind blue-500 */
+            transform: scale(1.05); /* Slightly enlarge */
+        }
+        .selected span{
+            color: white;
+        }
+        .selected img {
+            filter: brightness(0) invert(1); /* Change the icon color to white */
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 font-sans" x-data="{ operation: 'merge' }">
     <div class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg md:max-w-2xl">
             <h1 class="text-3xl font-bold mb-6 text-center gradient-bg text-white py-2 rounded">PDF Manager</h1>
             <form method="POST" enctype="multipart/form-data" class="space-y-6">
                 {% csrf_token %}
-
+                <input type="hidden" name="operation" :value="operation">
                 <div>
-                    <label for="operation" class="block text-sm font-medium text-gray-700">Choose an operation:</label>
-                    <select name="operation" id="operation" x-model="operation" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                        <option value="pdf_to_word">PDF to WORD</option>
-                        <option value="merge">Merge PDFs</option>
-                        <option value="split">Split PDF</option>
-                        <option value="extract_text">Extract Text</option>
-                        <option value="extract_images">Extract Images</option>
-                        <option value="encrypt">Encrypt PDF</option>
-                        <option value="decrypt">Decrypt PDF</option>
-                        <option value="rearrange_pages">Rearrange Pages</option>
-                        <option value="rotate_pages">Rotate Pages</option>
-                        <option value="read_metadata">Read Metadata</option>
-                        <option value="add_metadata">Add Metadata</option>
-                        <option value="optimize">Optimize PDF</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="pdf_files" class="block text-sm font-medium text-gray-700">Choose PDF files:</label>
-                    <input type="file" name="pdf_files" id="pdf_files" multiple class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <!-- Conditional display of Output File Name -->
-                <div x-show="!(operation === 'split' || operation === 'extract_text' || operation === 'extract_images')">
-                    <label for="output_file_name" class="block text-sm font-medium text-gray-700">Output file name (optional):</label>
-                    <input type="text" name="output_file_name" id="output_file_name" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <!-- Password field for encryption or decryption -->
-                <div x-show="operation === 'encrypt' || operation === 'decrypt'">
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
-                    <input type="password" name="password" id="password" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <!-- Page order field for rearrange pages -->
-                <div x-show="operation === 'rearrange_pages'">
-                    <label for="page_order" class="block text-sm font-medium text-gray-700">Page Order (separated by space):</label>
-                    <input type="text" name="page_order" id="page_order" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <!-- Rotation angle field for rotate pages -->
-                <div x-show="operation === 'rotate_pages'">
-                    <label for="rotation" class="block text-sm font-medium text-gray-700">Rotation angle (in degrees):</label>
-                    <input type="number" name="rotation" id="rotation" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <!-- Metadata fields for adding metadata -->
-                <div x-show="operation === 'add_metadata'">
-                    <label for="title" class="block text-sm font-medium text-gray-700">Title (for metadata):</label>
-                    <input type="text" name="title" id="title" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    
-                    <label for="author" class="block text-sm font-medium text-gray-700 mt-4">Author (for metadata):</label>
-                    <input type="text" name="author" id="author" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Process PDF
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">Choose an operation:</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'pdf_to_word' ? 'selected' : ''" 
+                            @click="operation='pdf_to_word'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/document.png" alt="PDF to Word" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">PDF to WORD</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'merge' ? 'selected' : ''" 
+                            @click="operation='merge'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/merge.png" alt="Merge PDFs" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Merge PDFs</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'split' ? 'selected' : ''" 
+                            @click="operation='split'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/split.png" alt="Split PDF" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Split PDF</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'extract_text' ? 'selected' : ''" 
+                            @click="operation='extract_text'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/text.png" alt="Extract Text" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Extract Text</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'extract_images' ? 'selected' : ''" 
+                            @click="operation='extract_images'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/image.png" alt="Extract Images" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Extract Images</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'encrypt' ? 'selected' : ''" 
+                            @click="operation='encrypt'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/lock.png" alt="Encrypt PDF" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Encrypt PDF</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'decrypt' ? 'selected' : ''" 
+                            @click="operation='decrypt'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/unlock.png" alt="Decrypt PDF" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Decrypt PDF</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'rearrange_pages' ? 'selected' : ''" 
+                            @click="operation='rearrange_pages'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/rearrange.png" alt="Rearrange Pages" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Rearrange Pages</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'rotate_pages' ? 'selected' : ''" 
+                            @click="operation='rotate_pages'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/rotate.png" alt="Rotate Pages" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Rotate Pages</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'read_metadata' ? 'selected' : ''" 
+                            @click="operation='read_metadata'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/metadata.png" alt="Read Metadata" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Read Metadata</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'add_metadata' ? 'selected' : ''" 
+                            @click="operation='add_metadata'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/add-metadata.png" alt="Add Metadata" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Add Metadata</span>
+                            </div>
+                        </div>
+                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
+                            :class="operation === 'optimize' ? 'selected' : ''" 
+                            @click="operation='optimize'">
+                            <div class="flex items-center">
+                                <img src="https://img.icons8.com/ios/50/4f46e5/optimize.png" alt="Optimize PDF" class="w-8 h-8 mr-2">
+                                <span class="text-gray-800 font-medium">Optimize PDF</span>
+                            </div>
+                        </div>
+                    </
