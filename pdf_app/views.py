@@ -153,16 +153,17 @@ def read_metadata_helper(input_pdf):
     return '\n'.join(f"{key}: {value}" for key, value in metadata.items())
 
 def pdf_to_word_helper(pdf_file, output_buffer):
-    with tempfile.NamedTemporaryFile(suffix='.pdf') as temp_pdf:
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
         temp_pdf.write(pdf_file.read())
         temp_pdf.flush()
-        temp_pdf.close()
 
-        # Use pypandoc to convert PDF to DOCX
-        output_path = 'output.docx'
-        pypandoc.convert_file(temp_pdf.name, 'docx', outputfile=output_path)
+        # Use pdf2docx to convert PDF to DOCX
+        output_path = temp_pdf.name.replace('.pdf', '.docx')
+        cv = Converter(temp_pdf.name)
+        cv.convert(output_path, start=0, end=None)
+        cv.close()
 
-        # Read the converted DOCX into the output buffer
+        # Read the DOCX file and write it to the output buffer
         with open(output_path, 'rb') as docx_file:
             output_buffer.write(docx_file.read())
         output_buffer.seek(0)
