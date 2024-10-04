@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-=cldztbc4jg&xl0!x673!*v2_=p$$eu)=7*f#d0#zs$44xx-h^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app', '.railway.app']
-
+ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app', 'api.wsgi.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://api.wsgi.railway.app']
 
 if os.environ.get('READ_ONLY_FILE_SYSTEM'):  # Custom environment variable to detect serverless
     MEDIA_ROOT = '/tmp/media/'
