@@ -42,12 +42,15 @@
     </style>
 </head>
 
-<body class="bg-gray-100 font-sans" x-data="{ operation: 'merge' }">
+<body class="bg-gray-100 font-sans" x-data="{ operation: 'pdf_to_word' }">
     <div class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg md:max-w-2xl">
             <h1 class="text-3xl font-bold mb-6 text-center gradient-bg text-white py-2 rounded">PDF Manager</h1>
             <form method="POST" enctype="multipart/form-data" class="space-y-6">
                 {% csrf_token %}
+                {% if message %}
+        <p style="color:red;">{{ message }}</p>
+    {% endif %}
                 <input type="hidden" name="operation" :value="operation">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800 mb-2">Choose an operation:</h2>
@@ -113,7 +116,7 @@
                             @click="operation='rearrange_pages'">
                             <div class="flex items-center">
                                 <img src="https://img.icons8.com/ios/50/4f46e5/rearrange.png" alt="Rearrange Pages" class="w-8 h-8 mr-2">
-                                <span class="text-gray-800 font-medium">Rearrange Pages</span>
+                                <span class="text-gray-800 font-medium">Rearrange or Delete Pages</span>
                             </div>
                         </div>
                         <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
@@ -152,9 +155,9 @@
                     </div>
                     <br> <br>
                     <div style="background-color: #4f46e5; padding: 10px; border-radius: 5px;">
-                        <label for="pdf_files" class="block text-sm font-medium text-gray-700" style="color: white">Upload Section:</label>
-                        
-                        <div style="background-color: #4f46e5; padding: 10px; border-radius: 5px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+                        <label for="pdf_files" class="block text-sm font-medium text-gray-700" style="color: white">Upload Section:</label> 
+                         
+                        <div style="background-color: #4f46e5; padding: 10px; border-radius: 5px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);"> 
                             <label for="pdf_files" class="block text-sm font-medium text-gray-700" style="color: white">Choose PDF files:</label>
                     
                             <!-- Make the entire div clickable for file upload -->
@@ -165,19 +168,47 @@
                                     <span class="text-gray-800 font-medium">Upload PDF files</span>
                                 </div>
                             </label>
+                            
+                            <input type="file" name="pdf_files" id="pdf_files" multiple style="display: none;" onchange="displayFileNames(this.files);"> 
                     
-                            <!-- Hidden file input -->
-                            <input type="file" name="pdf_files" id="pdf_files" multiple style="display: none;">
-                        </div>
+                            <!-- File names display area -->
+                            <div id="uploaded-files-container" class="mt-2"></div>
+                        </div> 
                     </div>
                     
-                    </div>
+                    <script>
+                        function displayFileNames(files) {
+                            const container = document.getElementById('uploaded-files-container');
+                            container.innerHTML = '';  // Clear previous file names
+                    
+                            if (files.length === 0) {
+                                container.innerHTML = '<div class="text-red-500 text-sm mt-2">Add at least one file to process</div>';
+                                return;
+                            }
+                    
+                            Array.from(files).forEach(file => {
+                                const fileCard = document.createElement('div');
+                                fileCard.style.backgroundColor = '#ffffff';
+                                fileCard.style.borderRadius = '5px';
+                                fileCard.style.padding = '10px';
+                                fileCard.style.margin = '5px 0';
+                                fileCard.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                                fileCard.innerHTML = `
+                                    <strong>${file.name}</strong>
+                                    <span style="display: block; font-size: 12px; color: gray;">Size: ${(file.size / 1024).toFixed(2)} KB</span>
+                                `;
+                                container.appendChild(fileCard);
+                            });
+                        }
+                    </script>
+                    
 
     
                     <!-- Conditional display of Output File Name -->
                     <div x-show="!(operation === 'split' || operation === 'extract_text' || operation === 'extract_images')">
                         <br>
-                        <label for="output_file_name" class="block text-sm font-medium text-gray-700">Output file name (optional, if you want then don't add file extension):</label>
+                        <label for="output_file_name" class="block text-sm font-medium text-gray-700">Output file name (optional, e.g.  "Output", "Processed"): </label>
+
                         <input type="text" name="output_file_name" id="output_file_name"placeholder="Enter output file name" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
     
@@ -191,14 +222,14 @@
                     <!-- Page order field for rearranging pages -->
                     <div x-show="operation === 'rearrange_pages'">
                         <br>
-                        <label for="page_order" class="block text-sm font-medium text-gray-700">Page Order (separated by space):</label>
+                        <label for="page_order" class="block text-sm font-medium text-gray-700">Page Order (separated by space, exclude the page number you want to delete):</label>
                         <input type="text" name="page_order" id="page_order" placeholder="Enter page order" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
     
                     <!-- Rotation angle field for rotating pages -->
                     <div x-show="operation === 'rotate_pages'">
                         <br>
-                        <label for="rotation" class="block text-sm font-medium text-gray-700">Rotation angle (in degrees):</label>
+                        <label for="rotation" class="block text-sm font-medium text-gray-700">Rotation angle in degrees (Clockwise rotation, give accordingly):</label>
                         <input type="number" name="rotation" id="rotation" placeholder="Enter the angle" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
     
