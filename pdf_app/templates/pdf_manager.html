@@ -20,7 +20,13 @@
             transform: translateY(-5px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-
+        input[type="number"], input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
         .selected {
             background-color: #4f46e5; /* Tailwind blue-700 */
             color: white;
@@ -122,7 +128,7 @@
                             :class="operation === 'read_metadata' ? 'selected' : ''" 
                             @click="operation='read_metadata'">
                             <div class="flex items-center">
-                                <img src="https://img.icons8.com/ios/50/4f46e5/metadata.png" alt="Read Metadata" class="w-8 h-8 mr-2">
+                                <img src="https://i.imgur.com/PpCRX1Y.png" alt="Read Metadata" class="w-8 h-8 mr-2">
                                 <span class="text-gray-800 font-medium">Read Metadata</span>
                             </div>
                         </div>
@@ -130,16 +136,91 @@
                             :class="operation === 'add_metadata' ? 'selected' : ''" 
                             @click="operation='add_metadata'">
                             <div class="flex items-center">
-                                <img src="https://img.icons8.com/ios/50/4f46e5/add-metadata.png" alt="Add Metadata" class="w-8 h-8 mr-2">
+                                <img src="https://i.imgur.com/wq2YFlB.png" alt="Add Metadata" class="w-8 h-8 mr-2">
                                 <span class="text-gray-800 font-medium">Add Metadata</span>
                             </div>
                         </div>
-                        <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-pointer" 
-                            :class="operation === 'optimize' ? 'selected' : ''" 
-                            @click="operation='optimize'">
-                            <div class="flex items-center">
-                                <img src="https://img.icons8.com/ios/50/4f46e5/optimize.png" alt="Optimize PDF" class="w-8 h-8 mr-2">
-                                <span class="text-gray-800 font-medium">Optimize PDF</span>
-                            </div>
+                       <div class="option-card p-4 bg-gray-50 rounded-lg shadow-md cursor-not-allowed" 
+    :class="operation === 'optimize' ? 'selected' : ''" 
+    @click="operation='optimize'">
+    <div class="flex items-center">
+        <img src="https://icon-library.com/images/compress-icon/compress-icon-24.jpg" alt="Optimize PDF" class="w-8 h-8 mr-2 opacity-50">
+        <span class="text-gray-800 font-medium line-through">Compress PDF</span>
+    </div>
+    <div x-show="operation === 'optimize'"  class="text-white text-sm mt-2">This option isn't available at the moment</div>
+</div>
+                    </div>
+                    <br> <br>
+                    <div style="background-color: #4f46e5; padding: 10px; border-radius: 5px;">
+                        <label for="pdf_files" class="block text-sm font-medium text-gray-700" style="color: white">Upload Section:</label>
+                        <div style="background-color: #4f46e5; padding: 10px; border-radius: 5px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+    <label for="pdf_files" class="block text-sm font-medium text-gray-700" style="color: white">Choose PDF files:</label>
+    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" style="padding: 10px; border-radius: 5px; background-color: #f7f7f7; border: 1px solid #ccc;">
+        <input type="file" name="pdf_files" id="pdf_files" multiple style="opacity: 0; position: absolute; z-index: -1;">
+        <div class="flex items-center justify-center h-full cursor-pointer">
+            <img src="https://img.icons8.com/ios/50/4f46e5/upload.png" alt="Upload PDF" class="w-8 h-8 mr-2">
+            <span class="text-gray-800 font-medium">Upload PDF files</span>
+        </div>
+    </div>
+</div>
+                    </div>
+
+    
+                    <!-- Conditional display of Output File Name -->
+                    <div x-show="!(operation === 'split' || operation === 'extract_text' || operation === 'extract_images')">
+                        <br>
+                        <label for="output_file_name" class="block text-sm font-medium text-gray-700">Output file name (optional, if you want then don't add file extension):</label>
+                        <input type="text" name="output_file_name" id="output_file_name"placeholder="Enter output file name" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+    
+                    <!-- Password field for encryption or decryption -->
+                    <div x-show="operation === 'encrypt' || operation === 'decrypt'">
+                        <br>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                        <input type="password" name="password" id="password" placeholder="Enter password" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+    
+                    <!-- Page order field for rearranging pages -->
+                    <div x-show="operation === 'rearrange_pages'">
+                        <br>
+                        <label for="page_order" class="block text-sm font-medium text-gray-700">Page Order (separated by space):</label>
+                        <input type="text" name="page_order" id="page_order" placeholder="Enter page order" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+    
+                    <!-- Rotation angle field for rotating pages -->
+                    <div x-show="operation === 'rotate_pages'">
+                        <br>
+                        <label for="rotation" class="block text-sm font-medium text-gray-700">Rotation angle (in degrees):</label>
+                        <input type="number" name="rotation" id="rotation" placeholder="Enter the angle" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+    
+                    <!-- Metadata fields for adding metadata -->
+                    <div x-show="operation === 'add_metadata'">
+                        <br>
+                        <label for="title" class="block text-sm font-medium text-gray-700">Title (for metadata):</label>
+                        <input type="text" name="title" id="title" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+    
+                        <label for="author" class="block text-sm font-medium text-gray-700 mt-4">Author (for metadata):</label>
+                        <input type="text" name="author" id="author" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div x-show="operation === 'optimized'">
+                        <br>
+                        <div class="form-group">
+                            <label for="compression_factor">Compression Factor (0.1 to 1.0):</label>
+                            <input type="number" id="compression_factor" name="compression_factor" min="0.1" max="1.0" step="0.1" placeholder="Enter compression factor">
                         </div>
-                    </
+                    </div>
+                                            
+                    <br>
+                    <div>
+                        <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Process PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+    
+    </html>
