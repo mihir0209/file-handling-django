@@ -1,4 +1,4 @@
-Django
+Django==4.1.30
 gunicorn
 PyPDF2
 PyMuPDF
