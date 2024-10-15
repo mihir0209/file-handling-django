@@ -14,6 +14,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.settings')
 application = get_wsgi_application()
 
 from wsgiref.simple_server import make_server
-port = int(os.getenv('PORT', 8000))  # Default to 8000 if PORT is not set
+port = int(os.getenv('PORT', 8080))  # Default to 8000 if PORT is not set
 httpd = make_server('0.0.0.0', port, application)
 httpd.serve_forever()
