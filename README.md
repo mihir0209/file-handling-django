@@ -3,7 +3,7 @@
 Welcome to the **Django PDF Manager**, a powerful tool to manage and manipulate PDF files online. <br> This application allows users to perform a variety of operations on PDF files with ease.<br>
 # Important <br>
 The site is under maintainance for now.<br>
-Visit the deployed website: [PDF Manager Site](https://file-handling-django-production.up.railway.app/)
+Visit the deployed website: [PDF Manager Site](https://pdfhandlepro.onrender.com/)
 
 ## 🚀 Use Cases
 
@@ -57,7 +57,7 @@ This application supports the following PDF operations currently:
 ## 🌐 Deployment
 
 The application is accessible for use at:  
-[PDF Manager Application](https://file-handling-django-production.up.railway.app/)
+[PDF Manager Application](https://pdfhandlepro.onrender.com/)
 
 Simply upload your files, select the desired operation, and download the processed output in just a click.
 <br>
