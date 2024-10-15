@@ -61,8 +61,8 @@ The application is accessible for use at:
 
 Simply upload your files, select the desired operation, and download the processed output in just a click.
 <br>
-Feel free to raise an issue in this.
 
 ---
 
 Feel free to visit the site and explore these features!
+Feel free to raise an issue in this project.
